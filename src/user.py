@@ -1,6 +1,8 @@
 import sqlite3
 from datetime import datetime
+import logging
 
+logging.basicConfig(level=logging.INFO) 
 class user:
 
     def __init__(self, name, address, username, password, isAdmin=False, creationDate=None, lastUpdated=None) -> None:
@@ -87,7 +89,7 @@ class user:
             connection = sqlite3.connect('../LibaryDB.sqlite3')
             cursor = connection.cursor()
 
-            cursor.execute("SELECT * FROM users")
+            cursor.execute("SELECT * FROM Users")
             users_data = connection.fetchall()
 
             users = []
@@ -101,4 +103,18 @@ class user:
         finally:
             connection.close()
 
-        
+# Test the database connection within functions
+def test_database_connection():
+    logging.info("Testing database connection...")
+    try:
+        conn = sqlite3.connect('../LibaryDB.sqlite3')
+        conn.close()
+        logging.info("Database connection successful!")
+    except sqlite3.Error as e:
+        logging.error("Error occurred while connecting to the database: {}".format(e))
+
+test_database_connection()            
+
+all_users = user.get_all_users()
+for user in all_users:
+    print(user.name,user.lastUpdated)       
