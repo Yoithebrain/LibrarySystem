@@ -13,14 +13,14 @@ class user:
         self.lastUpdated = lastUpdated if lastUpdated else datetime.now()
 
     @classmethod
-    def save_user(self):
+    def save_user(cls, user):
         try:
             connection = sqlite3.connect('../LibaryDB.sqlite3')
             cursor = connection.cursor()
             cursor.execute('''INSERT INTO users (name, address, username, password, isAdmin, creationDate, lastUpdated)
             VALUES (?, ?, ?, ?, ?, ?, ?)''',
-            (self.name, self.address, self.username, self.password,
-            1 if self.isAdmin else 0, self.creationDate, self.lastUpdated))
+            (user.name, user.address, user.username, user.password,
+            1 if user.isAdmin else 0, user.creationDate, user.lastUpdated))
             
             cursor.commit()
         except sqlite3.Error as e:
@@ -30,7 +30,7 @@ class user:
             cursor.close()
 
     @classmethod
-    def load_from_database(cls, username):
+    def load_user(cls, username):
         try:
             connection = sqlite3.connect('../LibaryDB.sqlite3')
             cursor = connection.cursor()
@@ -50,15 +50,16 @@ class user:
             cursor.close()
     
     @classmethod
-    def update_in_database(self):
+    def update_user(cls, user):
         try:
+            user.lastUpdated = datetime.now()
             connection = sqlite3.connect('../LibaryDB.sqlite3')
             cursor = connection.cursor()
 
             cursor.execute('''UPDATE users SET name=?, address=?, password=?, isAdmin=?, lastUpdated=?
                          WHERE username=?''',
-                      (self.name, self.address, self.password, 1 if self.isAdmin else 0,
-                       self.lastUpdated, self.username))
+                      (user.name, user.address, user.password, 1 if user.isAdmin else 0,
+                       user.lastUpdated, user.username))
 
             cursor.commit()
         except sqlite3.Error as e:
@@ -67,12 +68,12 @@ class user:
             cursor.close()
 
     @classmethod
-    def delete_from_database(self):
+    def delete_user(cls, username):
         try:
             connection = sqlite3.connect('../LibaryDB.sqlite3')
             cursor = connection.cursor()
 
-            cursor.execute("DELETE FROM users WHERE username=?", (self.username,))
+            cursor.execute("DELETE FROM users WHERE username=?", (username))
 
             cursor.commit()
         except sqlite3.Error as e:
@@ -82,10 +83,10 @@ class user:
     
     @classmethod
     def get_all_users(cls):
-        connection = sqlite3.connect('../LibaryDB.sqlite3')
-        cursor = connection.cursor()
-
         try:
+            connection = sqlite3.connect('../LibaryDB.sqlite3')
+            cursor = connection.cursor()
+
             cursor.execute("SELECT * FROM users")
             users_data = connection.fetchall()
 
