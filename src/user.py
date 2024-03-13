@@ -42,7 +42,7 @@ class user:
             user_data = cursor.fetchone()
 
             if user_data:
-                return cls(user_data[1], user_data[2], user_data[3], user_data[4], bool(user_data[5]),
+                return cls(user_data[3], user_data[2], user_data[1], user_data[4], bool(user_data[5]),
                              user_data[6], user_data[7])
             else:
                 return None
@@ -53,22 +53,20 @@ class user:
             cursor.close()
     
     @classmethod
-    def update_user(cls, user):
+    def update_user(cls, username,user):
         try:
             user.lastUpdated = datetime.now()
-            logging.info("Updating user: {}".format(user.username))  # Debug statement
-            logging.info("New name: {}".format(user.name))  # Debug statement
+        
             connection = sqlite3.connect('../LibraryDB.sqlite3')
             cursor = connection.cursor()
 
-            sql_query = '''UPDATE Users SET name=?, address=?, password=?, isAdminFLG=?, lastUpdated=?
+            sql_query = f'''UPDATE Users SET name=?, address=?, username=?,password=?, isAdminFLG=?, lastUpdated=?
                         WHERE username=?'''
-            cursor.execute(sql_query, (user.name, user.address, user.password, 1 if user.isAdmin else 0,
-                                    user.lastUpdated, user.username,))
+            cursor.execute(sql_query, (user.name, user.address, user.username, user.password, 1 if user.isAdmin else 0,
+                                    user.lastUpdated, username))
 
             connection.commit()
             logging.info("User '{}' updated successfully.".format(user.username))
-            logging.info("Updated user name: {}".format(user.name))  # Debug statement
             return user
         except sqlite3.Error as e:
             logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
@@ -128,27 +126,26 @@ test_database_connection()
 
 # Examples:
 # Creating a new user
-new_user = user("Admin", "123 Main St", "johndoe", "password123", isAdmin=True)
-user.save_user(new_user)
+#new_user = user("Admin", "123 Main St", "johndoe", "password123", isAdmin=True)
+#user.save_user(new_user)
 
 # Load user
 loaded_user = user.load_user("johndoe")
-print("Before update:", loaded_user.name, loaded_user.username, loaded_user.isAdmin) 
+#print("Before update:", "name:" ,loaded_user.name,"username:" ,loaded_user.username, "isAdmin:", loaded_user.isAdmin) 
 
 # Update user
-loaded_user.name = "janedoe"
-print(loaded_user.name, loaded_user.username)
-updated_user = user.update_user(loaded_user)
-newLoad_user = user.load_user("janedoe")
-print("New load:", newLoad_user.name, newLoad_user.username, newLoad_user.isAdmin)
+old_username = loaded_user.username # Look up in db based on old username
+loaded_user.name = "AdminUpdate2" # changes name
+loaded_user.username = "janedoe" # changes username
+
+updated_user = user.update_user(username=old_username,user=loaded_user) # can update multiple fields
+
 
 # After update user
-if updated_user:
-    print("After update:", updated_user.name, updated_user.username, updated_user.isAdmin)
-else:
-    print("User 'janedoe' not found in the database.")
-
-
+#if updated_user:
+    #print("After update:", updated_user.name, updated_user.username, updated_user.isAdmin)
+#else:
+    #print("User 'janedoe' not found in the database.")
 
 # Deleting user
 #user.delete_user("johndoe")
