@@ -1,24 +1,25 @@
 import sys
+import admin_menu
 from user import user
 
 def login():
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
+    username = input("\nEnter your username: ")
+    password = input("\nEnter your password: ")
     
-    user_obj = user.load_user(username)
-    print(user_obj.password)
-    if user_obj:
-        print("found user:", user_obj.username, "password:", user_obj.password)
-        if user.verify_password(user_obj, password):
+    user_data = user.load_user(username)
+    if user_data:
+        user_obj = user_data[1]
+        if user_obj.verify_password(password):
             print("Login successful!")
             if user_obj.isAdmin:
-                print("You are an admin.")
+                print("\nYou are logged in as admin")
+                admin_menu.admin_menu()
             else:
-                print("You are not an admin.")
+                print("\nYou are not an admin.")
         else:
-            print("Incorrect password.")
+            print("\nIncorrect password.")
     else:
-        print("User not found.")
+        print("\nUser not found.")
 
 def create_user():
     name = input("Enter your name: ")
@@ -28,7 +29,7 @@ def create_user():
     
     new_user = user(name, address, username, password)
     user.save_user(new_user)
-    print("User created successfully.")
+    print("User created successfully.\n")
 
 
 #Test main for login

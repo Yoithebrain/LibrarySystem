@@ -45,8 +45,9 @@ class user:
             user_data = cursor.fetchone()
 
             if user_data:
-                return user_data[0],cls(user_data[3], user_data[4], user_data[1], user_data[2], bool(user_data[5]),
-                             user_data[6], user_data[7])
+                user_id = user_data[0]
+                user_obj = cls(user_data[3], user_data[4], user_data[1], user_data[2], bool(user_data[5]), user_data[6], user_data[7])
+                return user_id, user_obj
             else:
                 return None
         except sqlite3.Error as e:
@@ -140,7 +141,7 @@ def test_database_connection():
 #user.save_user(new_user)
 
 # Load user
-#loaded_user = user.load_user("johndoe")
+#loaded_user = user.load_user("janedoe")
 #print("Before update:", "name:" ,loaded_user.name,"username:" ,loaded_user.username, "isAdmin:", loaded_user.isAdmin) 
 
 # Update user
