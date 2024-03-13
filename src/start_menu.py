@@ -1,4 +1,3 @@
-import sys
 import admin_menu
 from user import user
 
@@ -32,23 +31,3 @@ def create_user():
     print("User created successfully.\n")
 
 
-#Test main for login
-def main():
-    while True:
-        print("1. Login")
-        print("2. Create new user")
-        print("3. Exit")
-        choice = input("Enter your choice: ")
-        
-        if choice == '1':
-            login()
-        elif choice == '2':
-            create_user()
-        elif choice == '3':
-            print("Exiting program.")
-            sys.exit()
-        else:
-            print("Invalid choice. Please enter 1, 2 or 3.")
-
-if __name__ == "__main__":
-    main()
