@@ -74,9 +74,7 @@ class user:
         finally:
             cursor.close()
             connection.close()
-
-
-
+            
     @classmethod
     def delete_user(cls, username):
         try:
