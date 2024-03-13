@@ -45,7 +45,7 @@ class user:
             user_data = cursor.fetchone()
 
             if user_data:
-                return cls(user_data[3], user_data[4], user_data[1], user_data[2], bool(user_data[5]),
+                return user_data[0],cls(user_data[3], user_data[4], user_data[1], user_data[2], bool(user_data[5]),
                              user_data[6], user_data[7])
             else:
                 return None
@@ -103,8 +103,17 @@ class user:
 
             users = []
             for user_data in users_data:
-                users.append(cls(user_data[1], user_data[2], user_data[3], user_data[4], bool(user_data[5]),
-                             user_data[6], user_data[7]))
+                user = {
+                    "userID": user_data[0],
+                    "name": user_data[3],
+                    "address": user_data[4],
+                    "username": user_data[1],
+                    "password": user_data[2],
+                    "isAdmin": bool(user_data[5]),
+                    "creationDate": user_data[6],
+                    "lastUpdated": user_data[7]
+                }
+                users.append(user)
         
             return users
         except sqlite3.Error as e:
@@ -147,4 +156,4 @@ def test_database_connection():
 # Get all users
 #all_users = user.get_all_users()
 #for user in all_users:
-    #print(user.name,user.lastUpdated)       
+    #print(user)       

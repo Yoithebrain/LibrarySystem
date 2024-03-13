@@ -7,7 +7,7 @@ def login():
     
     user_obj = user.load_user(username)
     if user_obj:
-        print("found user:", user_obj.username, "password: ", user_obj.password)
+        print("found user:", user_obj.username)
         if user.verify_password(user_obj, password):
             print("Login successful!")
             if user_obj.isAdmin:
