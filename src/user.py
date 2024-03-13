@@ -122,7 +122,7 @@ def test_database_connection():
     except sqlite3.Error as e:
         logging.error("Error occurred while connecting to the database: {}".format(e))
 
-test_database_connection() 
+#test_database_connection() 
 
 # Examples:
 # Creating a new user
@@ -130,22 +130,15 @@ test_database_connection()
 #user.save_user(new_user)
 
 # Load user
-loaded_user = user.load_user("johndoe")
+#loaded_user = user.load_user("johndoe")
 #print("Before update:", "name:" ,loaded_user.name,"username:" ,loaded_user.username, "isAdmin:", loaded_user.isAdmin) 
 
 # Update user
-old_username = loaded_user.username # Look up in db based on old username
-loaded_user.name = "AdminUpdate2" # changes name
-loaded_user.username = "janedoe" # changes username
+#old_username = loaded_user.username # Look up in db based on old username
+#loaded_user.name = "AdminUpdate2" # changes name
+#loaded_user.username = "janedoe" # changes username
 
-updated_user = user.update_user(username=old_username,user=loaded_user) # can update multiple fields
-
-
-# After update user
-#if updated_user:
-    #print("After update:", updated_user.name, updated_user.username, updated_user.isAdmin)
-#else:
-    #print("User 'janedoe' not found in the database.")
+#updated_user = user.update_user(username=old_username,user=loaded_user) # can update multiple fields
 
 # Deleting user
 #user.delete_user("johndoe")
