@@ -68,7 +68,7 @@ class Reservation:
         except sqlite3.Error as e:
             print(f"An error occurred when trying to fulfill a reservation: {e}")
         
-
+''''
 # Example usage - Debug code lines for unit
 if __name__ == "__main__":
     # Connect to SQLite database
@@ -87,3 +87,4 @@ if __name__ == "__main__":
 
     # Close the database connection
     conn.close()
+'''
