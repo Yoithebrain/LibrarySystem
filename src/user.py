@@ -14,6 +14,9 @@ class user:
         self.creationDate = creationDate if creationDate else datetime.now()
         self.lastUpdated = lastUpdated if lastUpdated else datetime.now()
 
+    def verify_password(self, password):
+        return self.password == password    
+
     @classmethod
     def save_user(cls, user):
         try:
@@ -42,7 +45,7 @@ class user:
             user_data = cursor.fetchone()
 
             if user_data:
-                return cls(user_data[3], user_data[2], user_data[1], user_data[4], bool(user_data[5]),
+                return cls(user_data[3], user_data[4], user_data[1], user_data[2], bool(user_data[5]),
                              user_data[6], user_data[7])
             else:
                 return None
@@ -74,7 +77,7 @@ class user:
         finally:
             cursor.close()
             connection.close()
-            
+
     @classmethod
     def delete_user(cls, username):
         try:
