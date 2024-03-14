@@ -1,11 +1,14 @@
 import sqlite3
 from datetime import datetime, timedelta
 from Database import DatabaseConnection
+import logging
+from Logging import Logger as log
 
 class BorrowSystem:
     def __init__(self):
         self.db_connection = DatabaseConnection().connect()
-
+    # Borrows a book
+    @log.log_function_call(level=logging.INFO)
     def borrow_book(self, user_id, book_id):
         try:
             connection = self.db_connection
@@ -20,6 +23,10 @@ class BorrowSystem:
                 if book_status[0] == 1:  # Book is available for borrowing
                     # Get current date and expiry date (7 days from borrow date)
                     borrowDate = datetime.now()
+                    # Debug dates
+                    #borrowDate = "2023-03-14 13:00:00"
+                    #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
+                    
                     expireDate = borrowDate + timedelta(days=7)
 
                     cursor.execute('''INSERT INTO BorrowedBooks (userID, bookID, dateUpdated, isAvailable, borrowedDate, expireDate, expired) 
@@ -43,25 +50,66 @@ class BorrowSystem:
                 print("Book borrowed successfully!")
 
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print("Error occurred:", e)
         finally:
             cursor.close()
-    #WIP
+
+    # Returns a single book
+    @log.log_function_call(level=logging.INFO)
     def return_book(self, borrow_id, user_id):
         try:
             cursor = self.db_connection.cursor()
             current_date = datetime.now()
+            # Get borrow due date
+            cursor.execute("SELECT expireDate FROM BorrowedBooks WHERE borrowID=?", (borrow_id,))
+            borrow_details = cursor.fetchone()
             
-            # Update the BorrowedBooks table to mark the book as returned
-            cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=? WHERE borrowID=?", 
-                           (current_date, user_id, borrow_id))
-            self.db_connection.commit()
-            print("Book returned successfully.")
+            if borrow_details:
+                # Expire date of borrow entry
+                expire_date = borrow_details[0]
+                # Convert so we can compare
+                expire_date = datetime.strptime(expire_date, "%Y-%m-%d %H:%M:%S")
+            
+                if current_date <= expire_date:
+                    # Update the BorrowedBooks table to mark the book as returned
+                    cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=?, dateUpdated=? WHERE borrowID=?", 
+                            (current_date, user_id, borrow_id, current_date))
+                    print("Book returned before due date")
+                
+                else:
+                    cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=?, expired=1, dateUpdated=? WHERE borrowID=?", 
+                            (current_date, user_id, borrow_id, current_date))
+                    print("Book returned after due date! :/")
+                self.db_connection.commit()
+            
+            #print("Book returned successfully.")
         except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
             print("Error occurred while returning book:", e)
         finally:
             cursor.close()
 
+    # Returns all borrowed books that haven't been returned as of yet
+    @log.log_function_call(level=logging.INFO)
+    def return_all_books(self, user_id):
+        try:
+            cursor = self.db_connection.cursor()
+            # Get all borrowed books for the user Id
+            cursor.execute("SELECT borrowID FROM BorrowedBooks WHERE userID=? AND isAvailable = 0", (user_id,))
+            borrowed_books = cursor.fetchall()
+
+            if borrowed_books:
+                for borrow_id in borrowed_books:
+                    # Return the current book
+                    self.return_book(borrow_id[0], user_id)
+            else:
+                print("User has no borrowed books")
+        except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
+            print(f"Error occurred when trying to return books: {e}")
+        finally:
+            cursor.close()
 
 # Testing borrowing system and if book is already borrowed to be deleted
 if __name__ == "__main__":
@@ -72,3 +120,6 @@ if __name__ == "__main__":
     book_id = 1
 
     book_borrowing_system.borrow_book(user_id, book_id)
+
+    # Return books - Example usage:
+    book_borrowing_system.return_all_books(user_id)
