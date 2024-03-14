@@ -1,9 +1,9 @@
-import admin_menu
-from user import user
-from Logging import Logger as log
-import logging
+import AdminMenu
+from User import user
+from Database import DatabaseConnection
 
-@log.log_function_call(level=logging.INFO)
+db_connection = DatabaseConnection()
+
 def login():
     username = input("\nEnter your username: ")
     password = input("\nEnter your password: ")
@@ -15,7 +15,7 @@ def login():
             print("Login successful!")
             if user_obj.isAdmin:
                 print("\nYou are logged in as admin")
-                admin_menu.admin_menu()
+                AdminMenu.admin_menu()
             else:
                 print("\nYou are not an admin.")
         else:
@@ -33,4 +33,5 @@ def create_user():
     user.save_user(new_user)
     print("User created successfully.\n")
 
-
+def close_database_connection():
+    db_connection.close()

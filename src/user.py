@@ -1,5 +1,9 @@
 import sqlite3
+import logging
 from datetime import datetime
+from Database import DatabaseConnection
+
+logging.basicConfig(level=logging.INFO) 
 import logging
 from Logging import Logger as log
 #logging.basicConfig(level=logging.INFO) 
@@ -21,19 +25,19 @@ class user:
     @classmethod
     def save_user(cls, user):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
-            
+
             cursor.execute('''INSERT INTO Users (name, address, username, password, isAdminFLG, creationDate, lastUpdated)
             VALUES (?, ?, ?, ?, ?, ?, ?)''',
             (user.name, user.address, user.username, user.password,
             1 if user.isAdmin else 0, user.creationDate, user.lastUpdated))
-            
+
             connection.commit()
         except sqlite3.Error as e:
             log.log_exception(level=logging.ERROR, exception=e)
             connection.rollback()
-            print("Error occured:", e)
+            print("Error occurred:", e)
         finally:
             cursor.close()
 
@@ -41,7 +45,7 @@ class user:
     @classmethod
     def load_user(cls, username):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("SELECT * FROM Users WHERE username=?", (username,))
@@ -59,16 +63,17 @@ class user:
             return None
         finally:
             cursor.close()
+
     @log.log_function_call(level=logging.INFO)
     @classmethod
-    def update_user(cls, username,user):
+    def update_user(cls, username, user):
         try:
             user.lastUpdated = datetime.now()
-        
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
-            sql_query = f'''UPDATE Users SET name=?, address=?, username=?,password=?, isAdminFLG=?, lastUpdated=?
+            sql_query = '''UPDATE Users SET name=?, address=?, username=?,password=?, isAdminFLG=?, lastUpdated=?
                         WHERE username=?'''
             cursor.execute(sql_query, (user.name, user.address, user.username, user.password, 1 if user.isAdmin else 0,
                                     user.lastUpdated, username))
@@ -77,17 +82,20 @@ class user:
             #logging.info("User '{}' updated successfully.".format(user.username))
             return user
         except sqlite3.Error as e:
+            logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
+            return None
             #logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
             log.log_exception(level=logging.ERROR, exception=e)
             return None  # Return None in case of an error
         finally:
             cursor.close()
+
             connection.close()
     @log.log_function_call(level=logging.INFO)
     @classmethod
     def delete_user(cls, username):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("DELETE FROM Users WHERE username=?", (username,))
@@ -99,11 +107,12 @@ class user:
         finally:
             cursor.close()
 
+
     @log.log_function_call(level=logging.INFO)
     @classmethod
     def get_all_users(cls):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("SELECT * FROM Users")
@@ -122,22 +131,21 @@ class user:
                     "lastUpdated": user_data[7]
                 }
                 users.append(user)
-        
+
             return users
         except sqlite3.Error as e:
             print("Error occurred:", e)
             log.log_exception(level=logging.CRITICAL, exception=e)
             return []
         finally:
-            connection.close()
+            cursor.close
 
 # Test the database connection within functions
 @log.log_function_call(level=logging.DEBUG)
 def test_database_connection():
     logging.info("Testing database connection...")
     try:
-        conn = sqlite3.connect('../LibraryDB.sqlite3')
-        conn.close()
+        DatabaseConnection().connect()
         logging.info("Database connection successful!")
     except sqlite3.Error as e:
         log.log_exception(level=logging.CRITICAL, exception=e)

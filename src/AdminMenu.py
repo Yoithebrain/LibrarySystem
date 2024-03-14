@@ -1,4 +1,4 @@
-from user import user
+from User import user
 
 def admin_menu():
     while True:
