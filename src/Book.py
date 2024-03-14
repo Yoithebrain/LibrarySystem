@@ -55,3 +55,72 @@ class Book:
             return []
         finally:
             cursor.close()
+
+    @classmethod
+    def get_all_bookIDs(cls):
+        try:
+            connection = DatabaseConnection().connect()
+            cursor = connection.cursor()
+
+            cursor.execute("SELECT bookID FROM Books")
+            book_ids = [row[0] for row in cursor.fetchall()]
+            
+            return book_ids
+        except sqlite3.Error as e:
+            logging.error("Error occurred while retrieving book IDs: {}".format(e))
+            return []
+        finally:
+            cursor.close()
+
+    #Get all available books using a list of ids
+    @classmethod
+    def get_available_books(cls, unavailableIDs):
+        try:
+            connection = DatabaseConnection().connect()
+            cursor = connection.cursor()
+
+            if not unavailableIDs:
+                cursor.execute("SELECT * FROM Books")
+            else:
+                placeholder = ",".join(["?" for _ in range(len(unavailableIDs))])
+                query = f"SELECT * FROM Books WHERE bookID NOT IN ({placeholder})"
+                cursor.execute(query, unavailableIDs)
+
+            books_data = cursor.fetchall()
+
+            books = []
+            for book_data in books_data:
+                books.append(cls(*book_data))
+        
+            return books
+        except sqlite3.Error as e:
+            logging.error("Error occurred while retrieving available books: {}".format(e))
+            return []
+        finally:
+            cursor.close()
+
+    @classmethod
+    def get_books_by_ids(cls, book_ids):
+        try:
+            connection = DatabaseConnection().connect()
+            cursor = connection.cursor()
+
+            if not book_ids:
+                return []
+
+            placeholder = ",".join(["?" for _ in range(len(book_ids))])
+            query = f"SELECT * FROM Books WHERE bookID IN ({placeholder})"
+            cursor.execute(query, book_ids)
+
+            books_data = cursor.fetchall()
+
+            books = []
+            for book_data in books_data:
+                books.append(cls(*book_data))
+        
+            return books
+        except sqlite3.Error as e:
+            logging.error("Error occurred while retrieving books by IDs: {}".format(e))
+            return []
+        finally:
+            cursor.close()

@@ -1,4 +1,5 @@
 import AdminMenu
+import UserMenu
 from User import user
 from Database import DatabaseConnection
 
@@ -17,7 +18,8 @@ def login():
                 print("\nYou are logged in as admin")
                 AdminMenu.admin_menu()
             else:
-                print("\nYou are not an admin.")
+                print("\nYou are logged in as user")
+                UserMenu.user_menu(userID=user_data[0])
         else:
             print("\nIncorrect password.")
     else:
