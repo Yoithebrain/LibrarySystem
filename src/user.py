@@ -4,6 +4,9 @@ from datetime import datetime
 from Database import DatabaseConnection
 
 logging.basicConfig(level=logging.INFO) 
+import logging
+from Logging import Logger as log
+#logging.basicConfig(level=logging.INFO) 
 class user:
 
     def __init__(self, name, address, username, password, isAdmin=False, creationDate=None, lastUpdated=None) -> None:
@@ -16,8 +19,9 @@ class user:
         self.lastUpdated = lastUpdated if lastUpdated else datetime.now()
 
     def verify_password(self, password):
-        return self.password == password    
-
+        return self.password == password
+        
+    @log.log_function_call(level=logging.INFO)
     @classmethod
     def save_user(cls, user):
         try:
@@ -31,11 +35,13 @@ class user:
 
             connection.commit()
         except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
             connection.rollback()
             print("Error occurred:", e)
         finally:
             cursor.close()
 
+    @log.log_function_call(level=logging.INFO)
     @classmethod
     def load_user(cls, username):
         try:
@@ -53,10 +59,12 @@ class user:
                 return None
         except sqlite3.Error as e:
             print("Error occurred:", e)
+            log.log_exception(level=logging.CRITICAL, exception=e)
             return None
         finally:
             cursor.close()
 
+    @log.log_function_call(level=logging.INFO)
     @classmethod
     def update_user(cls, username, user):
         try:
@@ -71,14 +79,19 @@ class user:
                                     user.lastUpdated, username))
 
             connection.commit()
-            logging.info("User '{}' updated successfully.".format(user.username))
+            #logging.info("User '{}' updated successfully.".format(user.username))
             return user
         except sqlite3.Error as e:
             logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
             return None
+            #logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
+            log.log_exception(level=logging.ERROR, exception=e)
+            return None  # Return None in case of an error
         finally:
             cursor.close()
 
+            connection.close()
+    @log.log_function_call(level=logging.INFO)
     @classmethod
     def delete_user(cls, username):
         try:
@@ -89,10 +102,13 @@ class user:
 
             connection.commit()
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print("Error occurred:", e)
         finally:
             cursor.close()
 
+
+    @log.log_function_call(level=logging.INFO)
     @classmethod
     def get_all_users(cls):
         try:
@@ -119,17 +135,20 @@ class user:
             return users
         except sqlite3.Error as e:
             print("Error occurred:", e)
+            log.log_exception(level=logging.CRITICAL, exception=e)
             return []
         finally:
             cursor.close
 
 # Test the database connection within functions
+@log.log_function_call(level=logging.DEBUG)
 def test_database_connection():
     logging.info("Testing database connection...")
     try:
         DatabaseConnection().connect()
         logging.info("Database connection successful!")
     except sqlite3.Error as e:
+        log.log_exception(level=logging.CRITICAL, exception=e)
         logging.error("Error occurred while connecting to the database: {}".format(e))
 
 #test_database_connection() 
