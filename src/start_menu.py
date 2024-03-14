@@ -1,5 +1,8 @@
 import admin_menu
 from user import user
+from Database import DatabaseConnection
+
+db_connection = DatabaseConnection()
 
 def login():
     username = input("\nEnter your username: ")
@@ -30,4 +33,5 @@ def create_user():
     user.save_user(new_user)
     print("User created successfully.\n")
 
-
+def close_database_connection():
+    db_connection.close()

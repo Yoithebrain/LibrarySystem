@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 import logging
+from Database import DatabaseConnection
 
 logging.basicConfig(level=logging.INFO) 
 class user:
@@ -20,25 +21,25 @@ class user:
     @classmethod
     def save_user(cls, user):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
-            
+
             cursor.execute('''INSERT INTO Users (name, address, username, password, isAdminFLG, creationDate, lastUpdated)
             VALUES (?, ?, ?, ?, ?, ?, ?)''',
             (user.name, user.address, user.username, user.password,
             1 if user.isAdmin else 0, user.creationDate, user.lastUpdated))
-            
+
             connection.commit()
         except sqlite3.Error as e:
             connection.rollback()
-            print("Error occured:", e)
+            print("Error occurred:", e)
         finally:
             cursor.close()
 
     @classmethod
     def load_user(cls, username):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("SELECT * FROM Users WHERE username=?", (username,))
@@ -55,16 +56,16 @@ class user:
             return None
         finally:
             cursor.close()
-    
+
     @classmethod
-    def update_user(cls, username,user):
+    def update_user(cls, username, user):
         try:
             user.lastUpdated = datetime.now()
-        
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
-            sql_query = f'''UPDATE Users SET name=?, address=?, username=?,password=?, isAdminFLG=?, lastUpdated=?
+            sql_query = '''UPDATE Users SET name=?, address=?, username=?,password=?, isAdminFLG=?, lastUpdated=?
                         WHERE username=?'''
             cursor.execute(sql_query, (user.name, user.address, user.username, user.password, 1 if user.isAdmin else 0,
                                     user.lastUpdated, username))
@@ -74,15 +75,14 @@ class user:
             return user
         except sqlite3.Error as e:
             logging.error("Error occurred while updating user '{}': {}".format(user.username, e))
-            return None  # Return None in case of an error
+            return None
         finally:
             cursor.close()
-            connection.close()
 
     @classmethod
     def delete_user(cls, username):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("DELETE FROM Users WHERE username=?", (username,))
@@ -92,11 +92,11 @@ class user:
             print("Error occurred:", e)
         finally:
             cursor.close()
-    
+
     @classmethod
     def get_all_users(cls):
         try:
-            connection = sqlite3.connect('../LibraryDB.sqlite3')
+            connection = DatabaseConnection().connect()
             cursor = connection.cursor()
 
             cursor.execute("SELECT * FROM Users")
@@ -115,20 +115,19 @@ class user:
                     "lastUpdated": user_data[7]
                 }
                 users.append(user)
-        
+
             return users
         except sqlite3.Error as e:
             print("Error occurred:", e)
             return []
         finally:
-            connection.close()
+            cursor.close
 
 # Test the database connection within functions
 def test_database_connection():
     logging.info("Testing database connection...")
     try:
-        conn = sqlite3.connect('../LibraryDB.sqlite3')
-        conn.close()
+        DatabaseConnection().connect()
         logging.info("Database connection successful!")
     except sqlite3.Error as e:
         logging.error("Error occurred while connecting to the database: {}".format(e))

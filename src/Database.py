@@ -21,7 +21,7 @@ class DatabaseConnection:
                 #current_dir = os.path.dirname(os.path.abspath(__file__))
                 # Specify the path to the database file relative to the script
                 #db_path = os.path.join(current_dir, '..', 'LibraryDB.sqlite3')
-                db_path = "C:/Users/KOM/Documents/Uge 6 - Case 1 - Niveau 2/LibrarySystem/LibraryDB.sqlite3"
+                db_path = "../LibraryDB.sqlite3"
                 # Connect to SQLite database
                 self._connection = sqlite3.connect(db_path)
                 print("Connect to DB succesfully")
