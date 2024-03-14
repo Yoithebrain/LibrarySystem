@@ -23,6 +23,10 @@ class BorrowSystem:
                 if book_status[0] == 1:  # Book is available for borrowing
                     # Get current date and expiry date (7 days from borrow date)
                     borrowDate = datetime.now()
+                    # Debug dates
+                    #borrowDate = "2023-03-14 13:00:00"
+                    #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
+                    
                     expireDate = borrowDate + timedelta(days=7)
 
                     cursor.execute('''INSERT INTO BorrowedBooks (userID, bookID, dateUpdated, isAvailable, borrowedDate, expireDate, expired) 
@@ -57,12 +61,29 @@ class BorrowSystem:
         try:
             cursor = self.db_connection.cursor()
             current_date = datetime.now()
+            # Get borrow due date
+            cursor.execute("SELECT expireDate FROM BorrowedBooks WHERE borrowID=?", (borrow_id,))
+            borrow_details = cursor.fetchone()
             
-            # Update the BorrowedBooks table to mark the book as returned
-            cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=? WHERE borrowID=?", 
-                           (current_date, user_id, borrow_id))
-            self.db_connection.commit()
-            print("Book returned successfully.")
+            if borrow_details:
+                # Expire date of borrow entry
+                expire_date = borrow_details[0]
+                # Convert so we can compare
+                expire_date = datetime.strptime(expire_date, "%Y-%m-%d %H:%M:%S")
+            
+                if current_date <= expire_date:
+                    # Update the BorrowedBooks table to mark the book as returned
+                    cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=?, dateUpdated=? WHERE borrowID=?", 
+                            (current_date, user_id, borrow_id, current_date))
+                    print("Book returned before due date")
+                
+                else:
+                    cursor.execute("UPDATE BorrowedBooks SET deliveredDate=?, isAvailable=1, userID=?, expired=1, dateUpdated=? WHERE borrowID=?", 
+                            (current_date, user_id, borrow_id, current_date))
+                    print("Book returned after due date! :/")
+                self.db_connection.commit()
+            
+            #print("Book returned successfully.")
         except sqlite3.Error as e:
             log.log_exception(level=logging.ERROR, exception=e)
             print("Error occurred while returning book:", e)
@@ -89,7 +110,7 @@ class BorrowSystem:
             print(f"Error occurred when trying to return books: {e}")
         finally:
             cursor.close()
-'''
+
 # Testing borrowing system and if book is already borrowed to be deleted
 if __name__ == "__main__":
     book_borrowing_system = BorrowSystem()
@@ -102,4 +123,3 @@ if __name__ == "__main__":
 
     # Return books - Example usage:
     book_borrowing_system.return_all_books(user_id)
-'''
