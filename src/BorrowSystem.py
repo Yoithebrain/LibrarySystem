@@ -1,11 +1,14 @@
 import sqlite3
 from datetime import datetime, timedelta
 from Database import DatabaseConnection
+import logging
+from Logging import Logger as log
 
 class BorrowSystem:
     def __init__(self):
         self.db_connection = DatabaseConnection().connect()
-
+    # Borrows a book
+    @log.log_function_call(level=logging.INFO)
     def borrow_book(self, user_id, book_id):
         try:
             connection = self.db_connection
@@ -43,10 +46,13 @@ class BorrowSystem:
                 print("Book borrowed successfully!")
 
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print("Error occurred:", e)
         finally:
             cursor.close()
-    #WIP
+
+    # Returns a single book
+    @log.log_function_call(level=logging.INFO)
     def return_book(self, borrow_id, user_id):
         try:
             cursor = self.db_connection.cursor()
@@ -58,11 +64,32 @@ class BorrowSystem:
             self.db_connection.commit()
             print("Book returned successfully.")
         except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
             print("Error occurred while returning book:", e)
         finally:
             cursor.close()
 
+    # Returns all borrowed books that haven't been returned as of yet
+    @log.log_function_call(level=logging.INFO)
+    def return_all_books(self, user_id):
+        try:
+            cursor = self.db_connection.cursor()
+            # Get all borrowed books for the user Id
+            cursor.execute("SELECT borrowID FROM BorrowedBooks WHERE userID=? AND isAvailable = 0", (user_id,))
+            borrowed_books = cursor.fetchall()
 
+            if borrowed_books:
+                for borrow_id in borrowed_books:
+                    # Return the current book
+                    self.return_book(borrow_id[0], user_id)
+            else:
+                print("User has no borrowed books")
+        except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
+            print(f"Error occurred when trying to return books: {e}")
+        finally:
+            cursor.close()
+'''
 # Testing borrowing system and if book is already borrowed to be deleted
 if __name__ == "__main__":
     book_borrowing_system = BorrowSystem()
@@ -72,3 +99,7 @@ if __name__ == "__main__":
     book_id = 1
 
     book_borrowing_system.borrow_book(user_id, book_id)
+
+    # Return books - Example usage:
+    book_borrowing_system.return_all_books(user_id)
+'''
