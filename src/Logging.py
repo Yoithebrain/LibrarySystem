@@ -26,6 +26,10 @@ class Logger:
         """)
         self.con.commit()
 
+    def log_exception(self, exception, level=logging.error):
+        # Log the exception
+        self.log(level, f"Exception occurred: {exception}")
+
     def log_function_call(self, level=logging.INFO):
         def decorator(func):
             def wrapper(*args, **kwargs):

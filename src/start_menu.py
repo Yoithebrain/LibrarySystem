@@ -1,6 +1,9 @@
 import admin_menu
 from user import user
+from Logging import Logger as log
+import logging
 
+@log.log_function_call(level=logging.INFO)
 def login():
     username = input("\nEnter your username: ")
     password = input("\nEnter your password: ")

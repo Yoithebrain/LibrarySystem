@@ -6,6 +6,8 @@
 import sqlite3
 import Database
 import datetime
+from Logging import Logger as log
+import logging
 
 # Class definition
 class Reservation:
@@ -16,6 +18,7 @@ class Reservation:
     # multiple active reservations.. As that would mean a different setup for the current database.
     # - CLY 13-03-24 - 
     ####
+    @log.log_function_call(level=logging.INFO)
     def reserve_book(self, user_id, book_id):
         try:
             cursor = self.conn.cursor()
@@ -30,12 +33,14 @@ class Reservation:
             else:
                 print("There is already an active reservation for the book in the system currently, please try again at another time")
         except Exception as e:
+            log.log_exception(level=logging.ERROR, exception=e)
             print(f"Something went wrong when trying to reserve the book, {e}")
     
     ###
     # Checks if a book have been returned where the book may have a reservation
     # - CLY 13-03-24 -
     ###
+    @log.log_function_call(level=logging.INFO)
     def check_reservation_availbility (self, book_id):
         try:
             cursor = self.conn.cursor()
@@ -48,11 +53,13 @@ class Reservation:
             else:
                 print("Book is still not available")
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print(f"An error occurred when trying to check if a reservation was avaiable to be borrowed: {e}")
     ####
     # Deals with fulfilling a reservation when a reservation is borrowed by the user
     # - CLY 13-02-24 - 
     ####
+    @log.log_function_call(level=logging.INFO)
     def isFulfilled (self, book_id, user_id):
         try:
             cursor = self.conn.cursor()
@@ -66,6 +73,7 @@ class Reservation:
                     self.conn.commit()
                     print("Reservation have been fulfilled")
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print(f"An error occurred when trying to fulfill a reservation: {e}")
     
     def getAllAvailableBooks(self):
@@ -75,6 +83,7 @@ class Reservation:
             res = cursor.fetchall()
             return res
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             print(f"An error occured when trying to fetch books that can be reserved: {e}")
 
 # Example usage - Debug code lines for unit
