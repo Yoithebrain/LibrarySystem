@@ -1,5 +1,5 @@
-import admin_menu
-from user import user
+import AdminMenu
+from User import user
 from Database import DatabaseConnection
 
 db_connection = DatabaseConnection()
@@ -15,7 +15,7 @@ def login():
             print("Login successful!")
             if user_obj.isAdmin:
                 print("\nYou are logged in as admin")
-                admin_menu.admin_menu()
+                AdminMenu.admin_menu()
             else:
                 print("\nYou are not an admin.")
         else:

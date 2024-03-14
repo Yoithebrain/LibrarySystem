@@ -1,5 +1,5 @@
 import sys
-import start_menu
+import StartMenu
 
 def main():
     try:
@@ -10,9 +10,9 @@ def main():
             choice = input("Enter your choice: ")
             
             if choice == '1':
-                start_menu.login()
+                StartMenu.login()
             elif choice == '2':
-                start_menu.create_user()
+                StartMenu.create_user()
             elif choice == '3':
                 print("Exiting program.")
                 sys.exit()
@@ -20,7 +20,7 @@ def main():
                 print("Invalid choice. Please enter 1, 2, or 3.")
     finally:
         # Close the database connection when the program exits
-        start_menu.close_database_connection()
+        StartMenu.close_database_connection()
 
 if __name__ == "__main__":
     main()

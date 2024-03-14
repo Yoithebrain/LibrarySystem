@@ -1,6 +1,6 @@
 import sqlite3
-from datetime import datetime
 import logging
+from datetime import datetime
 from Database import DatabaseConnection
 
 logging.basicConfig(level=logging.INFO) 
