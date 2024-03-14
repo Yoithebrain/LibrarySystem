@@ -20,7 +20,7 @@ class Reservation:
         try:
             cursor = self.conn.cursor()
             # Check if a reservation already exists
-            cursor.execute("SELECT COUNT(*) FROM Reservations WHERE bookID = ? AND isFulfilled = 0", (book_id,))
+            cursor.execute("SELECT COUNT(*) FROM Reservations WHERE bookID = ? AND fulfilled = 0", (book_id,))
             active_res_count = cursor.fetchone()[0]
             if active_res_count == 0:
                 reservationDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -57,18 +57,26 @@ class Reservation:
         try:
             cursor = self.conn.cursor()
             # Get reservation Id
-            cursor.execute("SELECT reservationID, userID from Reservations WHERE bookID = ? AND isFulfilled = 0 ORDER BY reservationDate DESC LIMIT 1", (book_id,))
+            cursor.execute("SELECT reservationID, userID from Reservations WHERE bookID = ? AND fulfilled = 0 ORDER BY reservationDate DESC LIMIT 1", (book_id,))
             res = cursor.fetchone()
             if res:
                 reservation_id, userID = res
                 if userID == user_id:
-                    cursor.execute("UPDATE Reservations SET isFulfilled = 1 WHERE reservationID = ?", (reservation_id,))
+                    cursor.execute("UPDATE Reservations SET fulfilled = 1 WHERE reservationID = ?", (reservation_id,))
                     self.conn.commit()
                     print("Reservation have been fulfilled")
         except sqlite3.Error as e:
             print(f"An error occurred when trying to fulfill a reservation: {e}")
-        
-''''
+    
+    def getAllAvailableBooks(self):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT * FROM books WHERE bookID NOT IN (SELECT bookID FROM Reservations WHERE fulfilled = 0) AND bookID NOT IN (SELECT bookID FROM BorrowedBooks WHERE isAvailable = 1);")
+            res = cursor.fetchall()
+            return res
+        except sqlite3.Error as e:
+            print(f"An error occured when trying to fetch books that can be reserved: {e}")
+
 # Example usage - Debug code lines for unit
 if __name__ == "__main__":
     # Connect to SQLite database
@@ -76,6 +84,9 @@ if __name__ == "__main__":
     #conn.connect()
     reservation_system = Reservation(conn.connect())
 
+    # Example usage: Fetch all books able to be reserved
+    Books = reservation_system.getAllAvailableBooks()
+    print(f"{Books[0:10]}")
     # Example usage: Reserve a book
     reservation_system.reserve_book(1, 1)
 
@@ -87,4 +98,3 @@ if __name__ == "__main__":
 
     # Close the database connection
     conn.close()
-'''
