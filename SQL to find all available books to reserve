@@ -1,0 +1,7 @@
+SELECT * FROM books
+WHERE bookID NOT IN (
+    SELECT bookID FROM Reservations WHERE isFulfilled = 0
+)
+AND bookID NOT IN (
+    SELECT bookID FROM BorrowedBooks WHERE isAvailable = 'active'
+);
