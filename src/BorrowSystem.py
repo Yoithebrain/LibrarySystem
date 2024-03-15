@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from Database import DatabaseConnection
 import logging
 from Logging import Logger as log
+import logging
+from Logging import Logger as log
 
 class BorrowSystem:
     def __init__(self):
@@ -24,6 +26,10 @@ class BorrowSystem:
                 if book_status[0] == 1:  # Book is available for borrowing
                     # Get current date and expiry date (7 days from borrow date)
                     borrowDate = datetime.now()
+                    # Debug dates
+                    #borrowDate = "2023-03-14 13:00:00"
+                    #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
+                    
                     # Debug dates
                     #borrowDate = "2023-03-14 13:00:00"
                     #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
@@ -51,6 +57,7 @@ class BorrowSystem:
                 print("Book borrowed successfully\n")
 
         except sqlite3.Error as e:
+            log.log_exception(level=logging.CRITICAL, exception=e)
             log.log_exception(level=logging.CRITICAL, exception=e)
             print("Error occurred:", e)
         finally:
@@ -88,6 +95,7 @@ class BorrowSystem:
     
             #print("Book returned successfully.")
         except sqlite3.Error as e:
+            log.log_exception(level=logging.ERROR, exception=e)
             log.log_exception(level=logging.ERROR, exception=e)
             print("Error occurred while returning book:", e)
         finally:
@@ -155,6 +163,9 @@ if __name__ == "__main__":
     book_id = 1
 
     book_borrowing_system.borrow_book(user_id, book_id)
+
+    # Return books - Example usage:
+    book_borrowing_system.return_all_books(user_id)
 
     # Return books - Example usage:
     book_borrowing_system.return_all_books(user_id)
