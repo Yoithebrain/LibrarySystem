@@ -1,11 +1,8 @@
 import sqlite3
+import logging
 from datetime import datetime, timedelta
 from Database import DatabaseConnection
-import logging
 from Logging import Logger as log
-import logging
-from Logging import Logger as log
-
 class BorrowSystem:
     def __init__(self):
         self.db_connection = DatabaseConnection().connect()
@@ -26,13 +23,6 @@ class BorrowSystem:
                 if book_status[0] == 1:  # Book is available for borrowing
                     # Get current date and expiry date (7 days from borrow date)
                     borrowDate = datetime.now()
-                    # Debug dates
-                    #borrowDate = "2023-03-14 13:00:00"
-                    #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
-                    
-                    # Debug dates
-                    #borrowDate = "2023-03-14 13:00:00"
-                    #borrowDate = datetime.strptime(borrowDate, "%Y-%m-%d %H:%M:%S")
                     
                     expireDate = borrowDate + timedelta(days=7)
 
@@ -153,19 +143,3 @@ class BorrowSystem:
             return []
         finally:
             cursor.close()
-
-# Testing borrowing system and if book is already borrowed to be deleted
-if __name__ == "__main__":
-    book_borrowing_system = BorrowSystem()
-
-    # Example user and book IDs
-    user_id = 1
-    book_id = 1
-
-    book_borrowing_system.borrow_book(user_id, book_id)
-
-    # Return books - Example usage:
-    book_borrowing_system.return_all_books(user_id)
-
-    # Return books - Example usage:
-    book_borrowing_system.return_all_books(user_id)

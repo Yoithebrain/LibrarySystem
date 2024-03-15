@@ -2,11 +2,7 @@ import sqlite3
 import logging
 from datetime import datetime
 from Database import DatabaseConnection
-
-logging.basicConfig(level=logging.INFO) 
-import logging
 from Logging import Logger as log
-#logging.basicConfig(level=logging.INFO) 
 class user:
 
     def __init__(self, name, address, username, password, isAdmin=False, creationDate=None, lastUpdated=None) -> None:
@@ -151,28 +147,3 @@ def test_database_connection():
         log.log_exception(level=logging.CRITICAL, exception=e)
         logging.error("Error occurred while connecting to the database: {}".format(e))
 
-#test_database_connection() 
-
-# Examples:
-# Creating a new user
-#new_user = user("Admin", "123 Main St", "johndoe", "password123", isAdmin=True)
-#user.save_user(new_user)
-
-# Load user
-#loaded_user = user.load_user("janedoe")
-#print("Before update:", "name:" ,loaded_user.name,"username:" ,loaded_user.username, "isAdmin:", loaded_user.isAdmin) 
-
-# Update user
-#old_username = loaded_user.username # Look up in db based on old username
-#loaded_user.name = "AdminUpdate2" # changes name
-#loaded_user.username = "janedoe" # changes username
-
-#updated_user = user.update_user(username=old_username,user=loaded_user) # can update multiple fields
-
-# Deleting user
-#user.delete_user("johndoe")
-
-# Get all users
-#all_users = user.get_all_users()
-#for user in all_users:
-    #print(user)       
