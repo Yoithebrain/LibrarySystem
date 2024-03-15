@@ -12,7 +12,7 @@ class Logger:
         with self.db_connection:
             cursor = self.db_connection.cursor()
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS logging (
+                CREATE TABLE IF NOT EXISTS Logging (
                     logID INTEGER PRIMARY KEY,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     level VARCHAR(10),
